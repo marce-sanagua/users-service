@@ -1,0 +1,19 @@
+const express = require("express");
+const cors = require("cors");
+require("dotenv").config();
+
+const userRoutes = require("./routes/userRoutes");
+const authRoutes = require("./routes/auth");
+
+const app = express();
+
+app.use(cors());
+app.use(express.json());
+
+app.use("/usuarios", userRoutes);
+app.use("/", authRoutes);
+app.get("/", (req, res) => {
+  res.send("API funcionando");
+});
+
+module.exports = app;
