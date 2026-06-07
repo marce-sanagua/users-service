@@ -3,15 +3,16 @@ const cors = require("cors");
 require("dotenv").config();
 
 const userRoutes = require("./routes/userRoutes");
-const authRoutes = require("./routes/auth");
+const { login } = require("./controllers/userController");
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
+app.post("/login", login);
 app.use("/usuarios", userRoutes);
-app.use("/", authRoutes);
+
 app.get("/", (req, res) => {
   res.send("API funcionando");
 });

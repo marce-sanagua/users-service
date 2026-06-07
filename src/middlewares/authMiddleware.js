@@ -1,22 +1,18 @@
 const jwt = require("jsonwebtoken");
+const SECRET = process.env.JWT_SECRET || "clave_secreta_temporal";
 
 const verificarToken = (req, res, next) => {
   const authHeader = req.headers["authorization"];
-
-  if (!authHeader) {
-    return res.status(401).json({ message: "Token requerido" });
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ message: "Token no proporcionado" });
   }
-
   const token = authHeader.split(" ")[1];
-
   try {
-    const decoded = jwt.verify(token, "secreto_super_seguro");
-
-    req.user = decoded; 
+    const decoded = jwt.verify(token, SECRET);
+    req.user = decoded;
     next();
-
-  } catch (error) {
-    return res.status(403).json({ message: "Token inválido" });
+  } catch (err) {
+    return res.status(401).json({ message: "Token inválido o expirado" });
   }
 };
 
