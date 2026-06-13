@@ -33,7 +33,22 @@ const register = (req, res) => {
             console.error("Error INSERT:", err);
             return res.status(500).json(err);
           }
-          res.json({ message: "Usuario creado" });
+
+          const token = jwt.sign(
+            { id: result.insertId, rol, nombre },
+            SECRET,
+            { expiresIn: "8h" }
+          );
+
+          res.status(201).json({
+            token,
+            user: {
+              id: result.insertId,
+              nombre,
+              email,
+              rol,
+            }
+          });
         }
       );
     } catch (err) {
@@ -104,14 +119,13 @@ const getUsuarios = (req, res) => {
   });
 };
 
+// ELIMINAR
 const eliminarUsuario = (req, res) => {
   const { id } = req.params;
-
-  // Verificar que no sea admin
   db.query("SELECT * FROM usuarios WHERE id = ?", [id], (err, results) => {
     if (err) return res.status(500).json(err);
     if (results.length === 0) return res.status(404).json({ message: "Usuario no encontrado" });
-    
+
     const usuario = results[0];
     if (usuario.rol === "admin") {
       return res.status(403).json({ message: "No se puede eliminar un admin" });

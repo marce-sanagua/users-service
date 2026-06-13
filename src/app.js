@@ -10,11 +10,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.post("/login", login);
+app.post("/acceso", login);
 app.use("/usuarios", userRoutes);
 
-app.get("/", (req, res) => {
-  res.send("API funcionando");
-});
+app.get("/", (req, res) => res.send("API funcionando"));
 
 module.exports = app;
