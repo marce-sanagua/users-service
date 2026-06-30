@@ -18,9 +18,9 @@ const register = (req, res) => {
 
   db.query("SELECT * FROM usuarios WHERE email = ?", [email], async (err, results) => {
     if (err) {
-      console.error("Error SELECT:", err);
-      return res.status(500).json(err);
-    }
+  console.error("Error SELECT:", err);
+  return res.status(500).json({ message: "Error interno del servidor" });
+}
     if (results.length > 0) return res.status(400).json({ message: "El email ya está registrado" });
 
     try {
@@ -31,7 +31,7 @@ const register = (req, res) => {
         (err, result) => {
           if (err) {
             console.error("Error INSERT:", err);
-            return res.status(500).json(err);
+            return res.status(500).json({ message: "Error interno del servidor" });
           }
 
           const token = jwt.sign(
@@ -66,7 +66,7 @@ const login = (req, res) => {
   db.query("SELECT * FROM usuarios WHERE email = ?", [email], async (err, results) => {
     if (err) {
       console.error("Error SELECT login:", err);
-      return res.status(500).json(err);
+      return res.status(500).json({message: "Error interno del servidor "});
     }
     if (results.length === 0) return res.status(401).json({ message: "Credenciales incorrectas" });
 
@@ -85,7 +85,7 @@ const login = (req, res) => {
         { expiresIn: "8h" }
       );
 
-      res.json({
+      res.status(201).json({
         token,
         user: {
           id: usuario.id,
@@ -105,7 +105,10 @@ const login = (req, res) => {
 const getUserById = (req, res) => {
   const { id } = req.params;
   db.query("SELECT id, nombre, email, rol FROM usuarios WHERE id = ?", [id], (err, results) => {
-    if (err) return res.status(500).json(err);
+    if (err) {
+      console.error(err);
+      return res.status(500).json({message: "Error interno del servidor"});
+    }
     if (results.length === 0) return res.status(404).json({ message: "Usuario no encontrado" });
     res.json(results[0]);
   });
@@ -114,7 +117,10 @@ const getUserById = (req, res) => {
 // GET ALL
 const getUsuarios = (req, res) => {
   db.query("SELECT id, nombre, email, rol FROM usuarios", (err, results) => {
-    if (err) return res.status(500).json(err);
+    if (err){
+     console.error(err);
+       return res.status(500).json({message:"Error interno del servidor"});
+    }
     res.json(results);
   });
 };
@@ -123,7 +129,10 @@ const getUsuarios = (req, res) => {
 const eliminarUsuario = (req, res) => {
   const { id } = req.params;
   db.query("SELECT * FROM usuarios WHERE id = ?", [id], (err, results) => {
-    if (err) return res.status(500).json(err);
+    if (err) {
+      console.error(err);
+      return res.status(500).json({message: "Error interno del servidor"});
+    }
     if (results.length === 0) return res.status(404).json({ message: "Usuario no encontrado" });
 
     const usuario = results[0];
@@ -132,8 +141,11 @@ const eliminarUsuario = (req, res) => {
     }
 
     db.query("DELETE FROM usuarios WHERE id = ?", [id], (err) => {
-      if (err) return res.status(500).json(err);
-      res.json({ message: "Usuario eliminado" });
+      if (err) {
+        console.error(err);
+        return res.status(500).json({message: "Error interno del servidor"});
+      }
+      res.json({  id: Number(id), deleted: true });
     });
   });
 };
